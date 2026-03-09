@@ -87,21 +87,77 @@ auth.onAuthStateChanged(function (user) {
         loadRecentChats();
         loadGroups();
         initEmojiPicker();
-        setPresence(true);
+        startHeartbeat();
       });
   } else {
     window.location.href = "index.html";
   }
 });
 
+// ═══ PRESENCE — HEARTBEAT SYSTEM ═══
+var _heartbeatInterval = null;
+var _presenceTimeout   = 65000; // 65 sec — agar heartbeat na aaye to offline
+
 function setPresence(isOnline) {
   if (!currentUser) return;
   db.collection("presence").doc(currentUser.uid).set({
     online: isOnline,
     lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+    heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
   });
 }
-window.addEventListener("beforeunload", function () {
+
+function startHeartbeat() {
+  stopHeartbeat();
+  // Foran online set karo
+  setPresence(true);
+  // Har 30 sec mein heartbeat bhejo
+  _heartbeatInterval = setInterval(function() {
+    if (currentUser && document.visibilityState !== "hidden") {
+      db.collection("presence").doc(currentUser.uid).set({
+        online: true,
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+        heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  }, 30000);
+}
+
+function stopHeartbeat() {
+  if (_heartbeatInterval) {
+    clearInterval(_heartbeatInterval);
+    _heartbeatInterval = null;
+  }
+}
+
+// Tab band / browser close
+window.addEventListener("beforeunload", function() {
+  stopHeartbeat();
+  setPresence(false);
+});
+
+// Mobile: tab switch ya app minimize
+window.addEventListener("pagehide", function() {
+  stopHeartbeat();
+  setPresence(false);
+});
+
+// Visibility change — mobile pe most reliable
+document.addEventListener("visibilitychange", function() {
+  if (document.visibilityState === "hidden") {
+    stopHeartbeat();
+    setPresence(false);
+  } else {
+    if (currentUser) startHeartbeat();
+  }
+});
+
+// Network online/offline events
+window.addEventListener("online", function() {
+  if (currentUser) startHeartbeat();
+});
+window.addEventListener("offline", function() {
+  stopHeartbeat();
   setPresence(false);
 });
 
@@ -116,11 +172,21 @@ function watchPresence(friendUID, elemId) {
     .collection("presence")
     .doc(friendUID)
     .onSnapshot(function (doc) {
-      window._friendPresenceCache[friendUID] =
-        doc.exists && doc.data().online ? true : false;
+      // Heartbeat check — agar 65 sec se purana ho to offline
+      var isOnline = false;
+      if (doc.exists && doc.data().online) {
+        var hb = doc.data().heartbeat;
+        if (hb && hb.toDate) {
+          var diff = Date.now() - hb.toDate().getTime();
+          isOnline = diff < 65000; // 65 sec threshold
+        } else {
+          isOnline = true; // heartbeat field nahi hai — purana data, trust karo
+        }
+      }
+      window._friendPresenceCache[friendUID] = isOnline;
       var el = document.getElementById(elemId);
       if (!el) return;
-      if (doc.exists && doc.data().online) {
+      if (isOnline) {
         el.style.color = "#22c55e";
         el.innerHTML =
           "<span style='width:7px;height:7px;border-radius:50%;background:#22c55e;" +
@@ -1507,12 +1573,7 @@ function watchTyping() {
       var someoneElseTyping = Object.keys(data).some(function (k) {
         return k !== myField && data[k] === true;
       });
-      if (someoneElseTyping) {
-        el.style.display = "flex";
-        el.style.setProperty('display', 'flex', 'important');
-      } else {
-        el.style.display = "none";
-      }
+      el.style.display = someoneElseTyping ? "flex" : "none";
     });
 }
 
@@ -2508,36 +2569,6 @@ document.addEventListener("click", function (e) {
       return;
     closeEmojiPicker();
   }
-});
-
-
-if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', function() {
-        var inputArea = document.getElementById('inputArea');
-        var messagesDiv = document.getElementById('messages');
-        if (!inputArea) return;
-    
-        var keyboardHeight = window.innerHeight - window.visualViewport.height;
-        if (keyboardHeight > 100) {
-            document.querySelector('.chat-area').style.paddingBottom = keyboardHeight + 'px';
-        } else {
-            document.querySelector('.chat-area').style.paddingBottom = '0';
-        }
-
-        setTimeout(function() {
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }, 100);
-    });
-}
-
-
-document.addEventListener('focusin', function(e) {
-    if (e.target && e.target.id === 'message') {
-        setTimeout(function() {
-            var messagesDiv = document.getElementById('messages');
-            if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }, 400);
-    }
 });
 
 function logout() {
