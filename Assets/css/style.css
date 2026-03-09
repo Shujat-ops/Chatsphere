@@ -1,10 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 
-/* ════════════════════════════════════════════
-   DESIGN TOKENS
-════════════════════════════════════════════ */
+
 :root {
-    /* Surfaces */
+   
     --bg:        #070c14;
     --panel:     #0c1525;
     --panel2:    #0e1a2e;
@@ -12,42 +10,38 @@
     --card:      #0d1828;
     --input-bg:  rgba(255,255,255,0.04);
 
-    /* Accent */
+
     --accent:    #00f5ff;
     --accent2:   #0077ff;
     --accent-dim: rgba(0,245,255,0.12);
     --accent-glow: 0 0 18px rgba(0,245,255,0.28);
 
-    /* Borders */
+
     --border:    rgba(0,245,255,0.10);
     --border2:   rgba(255,255,255,0.06);
 
-    /* Text */
     --text:      #dde7f3;
     --text-soft: #8fa5be;
     --muted:     #4a6380;
 
-    /* States */
+
     --success:   #22c55e;
     --danger:    #f04f6e;
     --warn:      #f59e0b;
 
-    /* Bubbles */
+
     --sent-bg:   rgba(0,100,220,0.28);
     --recv-bg:   rgba(255,255,255,0.06);
 
-    /* Shape */
+   
     --radius:    16px;
     --radius-sm: 10px;
 
-    /* Font */
     --font-ui:   'DM Sans', sans-serif;
     --font-brand:'Outfit', sans-serif;
 }
 
-/* ════════════════════════════════════════════
-   RESET & BASE
-════════════════════════════════════════════ */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -62,9 +56,6 @@ body {
     line-height: 1.5;
 }
 
-/* ════════════════════════════════════════════
-   AUTH PAGES (login/register)
-════════════════════════════════════════════ */
 .animated-bg {
     position: fixed; inset: 0; z-index: -1;
     background:
@@ -116,9 +107,7 @@ body {
 #fileName { color:var(--muted); font-size:12.5px; }
 
 
-/* ════════════════════════════════════════════
-   NAVBAR
-════════════════════════════════════════════ */
+
 .app-navbar {
     height: 58px;
     display: flex;
@@ -262,9 +251,7 @@ body {
     margin-left: 2px;
 }
 
-/* ════════════════════════════════════════════
-   NOTIFICATION PANEL
-════════════════════════════════════════════ */
+
 .notif-panel {
     position: fixed;
     top: 64px;
@@ -326,9 +313,7 @@ body {
 .notif-item .ni-msg  { color: var(--muted); font-size: 11.5px; }
 
 
-/* ════════════════════════════════════════════
-   LAYOUT
-════════════════════════════════════════════ */
+
 .app-body {
     flex: 1;
     display: flex;
@@ -336,9 +321,7 @@ body {
 }
 
 
-/* ════════════════════════════════════════════
-   SIDEBAR
-════════════════════════════════════════════ */
+
 .sidebar {
     width: 300px;
     min-width: 300px;
@@ -378,7 +361,7 @@ body {
 }
 .my-profile .profile-logout:hover { background: rgba(240,79,110,0.2); box-shadow: 0 0 10px rgba(240,79,110,0.25); }
 
-/* Search */
+
 .search-bar {
     display: flex;
     align-items: center;
@@ -422,13 +405,13 @@ body {
 
 .search-result-wrap { padding: 0 10px 4px; }
 
-/* Sidebar scroll */
+
 .sidebar-scroll { flex: 1; overflow-y: auto; }
 .sidebar-scroll::-webkit-scrollbar { width: 3px; }
 .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.1); border-radius: 2px; }
 .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,245,255,0.22); }
 
-/* Section labels */
+
 .section-label {
     font-size: 10.5px;
     color: var(--muted);
@@ -469,7 +452,6 @@ body {
 }
 .new-group-btn:hover { box-shadow: 0 0 10px rgba(0,245,255,0.4); transform: scale(1.03); }
 
-/* Chat items in sidebar */
 .friend-item {
     display: flex;
     align-items: center;
@@ -501,7 +483,7 @@ body {
     font-style: italic;
 }
 
-/* Stories row */
+
 .stories-row {
     display: flex;
     gap: 10px;
@@ -513,9 +495,8 @@ body {
 .stories-row::-webkit-scrollbar { display: none; }
 
 
-/* ════════════════════════════════════════════
-   CHAT AREA
-════════════════════════════════════════════ */
+
+
 .chat-area {
     flex: 1;
     display: flex;
@@ -525,7 +506,7 @@ body {
     min-width: 0;
     position: relative;
 }
-/* Subtle dot grid background */
+
 .chat-area::before {
     content: '';
     position: absolute; inset: 0;
@@ -535,7 +516,7 @@ body {
     background-size: 28px 28px;
 }
 
-/* Chat header */
+
 .chat-header {
     display: flex;
     align-items: center;
@@ -573,7 +554,7 @@ body {
 }
 .empty-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-/* Group info panel */
+
 .group-info-panel {
     background: var(--card);
     border-bottom: 1px solid var(--border);
@@ -584,7 +565,6 @@ body {
     z-index: 2;
 }
 
-/* Messages container */
 #messages {
     flex: 1;
     padding: 18px 22px;
@@ -598,7 +578,6 @@ body {
 #messages::-webkit-scrollbar { width: 4px; }
 #messages::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.12); border-radius: 4px; }
 
-/* Empty state */
 .chat-empty-state {
     flex: 1;
     display: flex;
@@ -625,9 +604,7 @@ body {
 .empty-state-title { font-family: var(--font-brand); font-weight: 700; font-size: 16px; color: var(--text); letter-spacing: -0.2px; }
 .empty-state-sub   { font-size: 12.5px; color: var(--muted); text-align: center; }
 
-/* ════════════════════════════════════════════
-   MESSAGE BUBBLES
-════════════════════════════════════════════ */
+
 .msg-row {
     display: flex;
     align-items: flex-end;
@@ -686,7 +663,7 @@ body {
 
 .msg-sender { font-size: 10.5px; color: var(--accent); margin-bottom: 3px; font-weight: 600; }
 
-/* Msg meta (time + ticks) */
+
 .msg-meta {
     display: flex;
     align-items: center;
@@ -700,9 +677,7 @@ body {
 .msg-ticks { font-size: 10px; letter-spacing: 0.3px; }
 
 
-/* ════════════════════════════════════════════
-   3-DOT OPTIONS
-════════════════════════════════════════════ */
+
 .msg-options-btn {
     position: absolute;
     top: 6px; right: 7px;
@@ -720,7 +695,7 @@ body {
 .msg-options-btn:hover { background: var(--accent-dim); color: var(--accent); }
 .msg-bubble:hover .msg-options-btn { display: flex; }
 
-/* Context menu */
+
 #msgContextMenu {
     animation: ctxIn .12s ease;
 }
@@ -730,9 +705,6 @@ body {
 }
 
 
-/* ════════════════════════════════════════════
-   REPLY PREVIEW (inside bubble)
-════════════════════════════════════════════ */
 .reply-preview {
     background: rgba(0,0,0,0.22);
     border-left: 2.5px solid var(--accent);
@@ -745,9 +717,7 @@ body {
 .reply-text { font-size: 12px; color: var(--text-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
 
 
-/* ════════════════════════════════════════════
-   REACTIONS
-════════════════════════════════════════════ */
+
 .msg-reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .react-pill {
     background: rgba(0,245,255,0.07);
@@ -781,9 +751,7 @@ body {
 .mine .msg-bubble .msg-react-btn { right: auto; left: -30px; }
 
 
-/* ════════════════════════════════════════════
-   TYPING INDICATOR
-════════════════════════════════════════════ */
+
 .typing-indicator {
     display: flex;
     align-items: center;
@@ -811,9 +779,7 @@ body {
 .typing-label { font-size: 12px; color: var(--muted); font-style: italic; }
 
 
-/* ════════════════════════════════════════════
-   AUTO REPLY SUGGESTIONS
-════════════════════════════════════════════ */
+
 .auto-replies-bar {
     display: flex;
     gap: 7px;
@@ -845,9 +811,7 @@ body {
 }
 
 
-/* ════════════════════════════════════════════
-   REPLY BAR (above input)
-════════════════════════════════════════════ */
+
 .reply-bar {
     display: flex;
     align-items: center;
@@ -877,9 +841,6 @@ body {
 .reply-bar-close:hover { color: var(--danger); }
 
 
-/* ════════════════════════════════════════════
-   MESSAGE SEARCH BAR
-════════════════════════════════════════════ */
 .msg-search-bar {
     display: flex;
     align-items: center;
@@ -907,9 +868,7 @@ body {
 .msg-search-close:hover { color: var(--accent); }
 
 
-/* ════════════════════════════════════════════
-   EMOJI PICKER
-════════════════════════════════════════════ */
+
 .emoji-picker {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
@@ -926,9 +885,7 @@ body {
 .emoji-picker::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.2); border-radius: 4px; }
 
 
-/* ════════════════════════════════════════════
-   VOICE RECORDING BAR
-════════════════════════════════════════════ */
+
 .voice-record-bar {
     display: flex;
     align-items: center;
@@ -988,7 +945,6 @@ body {
 .voice-btn-send:hover { box-shadow: 0 0 14px rgba(0,245,255,0.4); transform: scale(1.05); }
 
 
-/* Voice message player */
 .voice-msg-player { display:flex; align-items:center; gap:10px; padding:4px 2px; min-width:190px; }
 .voice-play-btn {
     width:34px; height:34px; border-radius:50%;
@@ -1005,9 +961,7 @@ body {
 .voice-duration { font-size:11px; color:var(--muted); white-space:nowrap; flex-shrink:0; min-width:28px; text-align:right; }
 
 
-/* ════════════════════════════════════════════
-   INPUT AREA
-════════════════════════════════════════════ */
+
 .input-area {
     display: flex;
     align-items: center;
@@ -1079,7 +1033,7 @@ body {
     box-shadow: 0 6px 20px rgba(0,245,255,0.44);
 }
 
-/* Spinner */
+
 .send-spinner {
     width: 15px; height: 15px;
     border: 2px solid rgba(0,0,0,0.2);
@@ -1090,7 +1044,7 @@ body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Msg empty inline state */
+
 .msg-empty-state {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -1103,9 +1057,6 @@ body {
 .msg-empty-sub  { font-size: 12.5px; color: var(--muted); }
 
 
-/* ════════════════════════════════════════════
-   MODALS
-════════════════════════════════════════════ */
 .modal-backdrop {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.75);
@@ -1139,7 +1090,7 @@ body {
     to   { opacity:1; transform:scale(1) translateY(0); }
 }
 
-/* Modal header */
+
 .modal-header {
     display: flex;
     align-items: center;
@@ -1193,7 +1144,7 @@ body {
 }
 .modal-close-x:hover { background: rgba(240,79,110,0.1); color: var(--danger); border-color: rgba(240,79,110,0.2); }
 
-/* Avatar section in profile modal */
+
 .modal-avatar-wrap {
     position: relative;
     width: 86px;
@@ -1222,7 +1173,7 @@ body {
 }
 .avatar-change-btn:hover { transform: scale(1.1); }
 
-/* Form fields */
+
 .form-field { margin-bottom: 16px; }
 .form-label {
     display: block;
@@ -1270,12 +1221,12 @@ body {
 .file-pick-row i { color: var(--accent); font-size: 15px; flex-shrink: 0; }
 .file-pick-row span { font-size: 12.5px; color: var(--muted); }
 
-/* Members list */
+
 .members-list { max-height: 190px; overflow-y: auto; }
 .members-list::-webkit-scrollbar { width: 3px; }
 .members-list::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.12); border-radius: 4px; }
 
-/* Modal actions */
+
 .modal-actions {
     display: flex;
     gap: 10px;
@@ -1283,7 +1234,7 @@ body {
 }
 .modal-actions--center { justify-content: center; }
 
-/* Buttons */
+
 .btn {
     padding: 11px 20px;
     border-radius: 12px;
@@ -1329,9 +1280,7 @@ body {
 .btn--warn:hover { background: rgba(245,158,11,0.22); }
 
 
-/* ════════════════════════════════════════════
-   SIDEBAR TOGGLE (mobile)
-════════════════════════════════════════════ */
+
 .sidebar-toggle {
     display: none;
     width: 38px; height: 38px;
@@ -1358,9 +1307,7 @@ body {
 .sidebar-overlay.show { display: block; }
 
 
-/* ════════════════════════════════════════════
-   RESPONSIVE
-════════════════════════════════════════════ */
+
 @media (max-width: 1024px) {
     .sidebar { width: 268px; min-width: 268px; }
     .msg-bubble { max-width: 75%; }
