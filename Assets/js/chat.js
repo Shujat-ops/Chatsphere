@@ -1,4 +1,3 @@
-// ===== MOBILE SIDEBAR TOGGLE =====
 function toggleSidebar() {
   var sidebar = document.querySelector(".sidebar");
   var overlay = document.getElementById("sidebarOverlay");
@@ -21,7 +20,7 @@ function closeSidebarOnMobile() {
   }
 }
 
-// ===== TOAST =====
+
 function showToast(msg, type) {
   var ex = document.getElementById("toast");
   if (ex) ex.remove();
@@ -82,7 +81,7 @@ auth.onAuthStateChanged(function (user) {
           currentUserPhoto = "";
         }
         showMyProfile();
-        cleanDuplicateContacts(); // purane duplicates auto-clean
+        cleanDuplicateContacts(); 
         loadContacts();
         loadPendingRequests();
         loadRecentChats();
@@ -95,7 +94,6 @@ auth.onAuthStateChanged(function (user) {
   }
 });
 
-// ===== PRESENCE =====
 function setPresence(isOnline) {
   if (!currentUser) return;
   db.collection("presence").doc(currentUser.uid).set({
@@ -110,7 +108,6 @@ window.addEventListener("beforeunload", function () {
 var _presenceUnsub = null;
 function watchPresence(friendUID, elemId) {
   if (!window._friendPresenceCache) window._friendPresenceCache = {};
-  // Cleanup old presence listener before making new one
   if (_presenceUnsub) {
     _presenceUnsub();
     _presenceUnsub = null;
@@ -119,7 +116,6 @@ function watchPresence(friendUID, elemId) {
     .collection("presence")
     .doc(friendUID)
     .onSnapshot(function (doc) {
-      // Update presence cache for tick logic
       window._friendPresenceCache[friendUID] =
         doc.exists && doc.data().online ? true : false;
       var el = document.getElementById(elemId);
@@ -217,7 +213,7 @@ function saveProfile() {
   }
 }
 
-// ===== REMOVE CONTACT =====
+
 function showRemoveContact() {
   if (!activeFriendUID) return;
   document.getElementById("removeContactModal").style.display = "flex";
@@ -231,7 +227,7 @@ function confirmRemoveContact() {
   var friendUID = activeFriendUID;
   var friendName = activeFriendName;
 
-  // Step 1: Sirf apne messages delete karo (apni side se)
+ 
   db.collection("conversations")
     .doc(chatID)
     .collection("messages")
@@ -244,7 +240,7 @@ function confirmRemoveContact() {
       });
       return batch.commit();
     })
-    // Step 1b: deletedAt timestamp save karo — baad mein sirf naye messages dikhenge
+
     .then(function () {
       return db
         .collection("chatVisibility")
@@ -253,14 +249,14 @@ function confirmRemoveContact() {
           deletedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
     })
-    // Step 2: Sirf apni recentChat entry delete karo
+
     .then(function () {
       return db
         .collection("recentChats")
         .doc(currentUser.uid + "_" + friendUID)
         .delete();
     })
-    // Step 3: Sirf apna friend doc delete karo
+   
     .then(function () {
       return db
         .collection("friends")
@@ -275,7 +271,7 @@ function confirmRemoveContact() {
       });
       return batch.commit();
     })
-    // Step 4: UI reset
+  
     .then(function () {
       showToast(friendName + " removed from your contacts.", "success");
       document.getElementById("chatHeader").innerHTML =
@@ -294,7 +290,7 @@ function confirmRemoveContact() {
     });
 }
 
-// ===== DELETE CHAT =====
+
 function showDeleteChat() {
   document.getElementById("deleteChatModal").style.display = "flex";
 }
@@ -307,7 +303,7 @@ function confirmDeleteChat() {
   }
 
   if (activeChatType === "group") {
-    // Group mein puri collection delete (group admin feature)
+  
     var ref = db
       .collection("groupMessages")
       .doc(activeChatID)
@@ -326,7 +322,7 @@ function confirmDeleteChat() {
         resetChatUI();
       });
   } else {
-    // Private — sirf apni visibility reset karo, doosre ka chat mat chhewo
+  
     db.collection("chatVisibility")
       .doc(currentUser.uid + "_" + activeChatID)
       .set({
@@ -355,7 +351,7 @@ function resetChatUI() {
   activeFriendUID = null;
 }
 
-// ===== MY PROFILE =====
+
 function showMyProfile() {
   var div = document.getElementById("myProfile");
   var ph = makeAvatar(
@@ -396,7 +392,7 @@ function showMyProfile() {
   if (navName) navName.textContent = currentUserName;
 }
 
-// ===== AVATAR HELPER =====
+
 function makeAvatar(photo, name, size, radius, bg, color) {
   if (photo) {
     return (
@@ -431,7 +427,7 @@ function makeAvatar(photo, name, size, radius, bg, color) {
   );
 }
 
-// ===== FORMAT TIME =====
+
 function formatTime(ts) {
   if (!ts) return "";
   var d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -442,7 +438,7 @@ function formatTime(ts) {
   return d.getDate() + "/" + (d.getMonth() + 1);
 }
 
-// ===== NOTIFICATION PANEL =====
+
 function toggleNotifPanel() {
   var p = document.getElementById("notifPanel");
   p.style.display = p.style.display === "flex" ? "none" : "flex";
@@ -497,7 +493,6 @@ function addNotifItem(name, photo, preview, chatID, type, uid) {
   list.insertBefore(item, list.firstChild);
 }
 
-// ===== SEARCH =====
 function searchUser() {
   var email = document.getElementById("friendEmail").value.trim();
   if (!email) {
@@ -555,13 +550,13 @@ function searchUser() {
     });
 }
 
-// ===== SEND REQUEST =====
+
 function sendContactRequest() {
   if (!foundUser) {
     showToast("Search first.", "error");
     return;
   }
-  // Pending ya already accepted dono check karo
+
   db.collection("friends")
     .where("senderUID", "==", currentUser.uid)
     .where("receiverUID", "==", foundUser.uid)
@@ -601,7 +596,7 @@ function sendContactRequest() {
     });
 }
 
-// ===== ADD FROM HEADER =====
+
 function addToContactFromChat() {
   if (!activeFriendUID) return;
   db.collection("friends")
@@ -634,7 +629,7 @@ function addToContactFromChat() {
     });
 }
 
-// ===== MESSAGE UNKNOWN =====
+
 function messageUnknown() {
   if (!foundUser) {
     showToast("Search first.", "error");
@@ -674,7 +669,7 @@ function messageUnknown() {
   foundUser = null;
 }
 
-// ===== PENDING REQUESTS =====
+
 var _pendingUnsub = null;
 function loadPendingRequests() {
   if (_pendingUnsub) return;
@@ -735,7 +730,7 @@ function acceptRequest(docId, sUid, sName, sEmail, sPhoto) {
     .doc(docId)
     .update({ status: "accepted" })
     .then(function () {
-      // Pehle check karo — duplicate accepted entry toh nahi hai already
+  
       db.collection("friends")
         .where("senderUID", "==", currentUser.uid)
         .where("receiverUID", "==", sUid)
@@ -756,7 +751,7 @@ function acceptRequest(docId, sUid, sName, sEmail, sPhoto) {
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
           }
-          // RecentChats se remove karo — ab contacts mein hai
+       
           db.collection("recentChats")
             .doc(currentUser.uid + "_" + sUid)
             .delete();
@@ -777,7 +772,7 @@ function rejectRequest(docId) {
     });
 }
 
-// ===== CLEAN DUPLICATE CONTACTS =====
+
 function cleanDuplicateContacts() {
   db.collection("friends")
     .where("senderUID", "==", currentUser.uid)
@@ -788,7 +783,7 @@ function cleanDuplicateContacts() {
       snap.forEach(function (doc) {
         var rUID = doc.data().receiverUID;
         if (seen[rUID]) {
-          // Duplicate — delete karo
+      
           doc.ref.delete();
         } else {
           seen[rUID] = true;
@@ -797,7 +792,6 @@ function cleanDuplicateContacts() {
     });
 }
 
-// ===== LOAD CONTACTS =====
 var _contactsUnsub = null;
 function loadContacts() {
   if (_contactsUnsub) return;
@@ -815,10 +809,10 @@ function loadContacts() {
         return;
       }
 
-      var seenUIDs = {}; // duplicate filter
+      var seenUIDs = {}; 
       snapshot.forEach(function (doc) {
         var data = doc.data();
-        if (seenUIDs[data.receiverUID]) return; // duplicate skip
+        if (seenUIDs[data.receiverUID]) return; 
         seenUIDs[data.receiverUID] = true;
         myContacts.push({
           uid: data.receiverUID,
@@ -841,10 +835,10 @@ function loadContacts() {
     });
 }
 
-// ===== LOAD RECENT =====
+
 var _recentChatsUnsub = null;
 function loadRecentChats() {
-  if (_recentChatsUnsub) return; // already listening
+  if (_recentChatsUnsub) return; 
   _recentChatsUnsub = db
     .collection("recentChats")
     .where("ownerUID", "==", currentUser.uid)
@@ -859,7 +853,6 @@ function loadRecentChats() {
       }
       snapshot.forEach(function (doc) {
         var data = doc.data();
-        // Check karo ke pehle se contact hai ya nahi
         var isAlreadyContact = myContacts.some(function (c) {
           return c.uid === data.peerUID;
         });
@@ -876,10 +869,9 @@ function loadRecentChats() {
     });
 }
 
-// ===== LOAD GROUPS =====
 var _groupsUnsub = null;
 function loadGroups() {
-  if (_groupsUnsub) return; // already listening
+  if (_groupsUnsub) return; 
   _groupsUnsub = db
     .collection("groups")
     .where("members", "array-contains", currentUser.uid)
@@ -906,7 +898,6 @@ function loadGroups() {
     });
 }
 
-// ===== RENDER CHAT ITEM =====
 function renderChatItem(container, uid, name, photo, isUnknown, chatID, type) {
   var isGroup = type === "group";
   var radius = isGroup ? "10px" : "50%";
@@ -987,8 +978,6 @@ function renderChatItem(container, uid, name, photo, isUnknown, chatID, type) {
         seenDoc.exists && seenDoc.data().timestamp
           ? seenDoc.data().timestamp
           : null;
-      // Firestore mein 2 alag fields pe inequality nahi chalta
-      // Sirf timestamp filter lagao, phir JS mein senderUID filter karo
       var q = lst ? msgRef.where("timestamp", ">", lst) : msgRef;
       q.get()
         .then(function (snap) {
@@ -1049,7 +1038,7 @@ function updateBadge(chatID, count) {
   }
 }
 
-// ===== OPEN PRIVATE CHAT =====
+
 function openPrivateChat(friendUID, friendName, friendPhoto, isUnknown) {
   activeFriendUID = friendUID;
   activeFriendName = friendName;
@@ -1095,7 +1084,7 @@ function openPrivateChat(friendUID, friendName, friendPhoto, isUnknown) {
   document.getElementById("chatHeader").onclick = null;
   document.getElementById("inputArea").style.display = "flex";
   watchPresence(friendUID, "presenceStatus");
-  // Cleanup on chat switch
+
   if (currentAudio) {
     currentAudio.pause();
     currentAudio = null;
@@ -1107,7 +1096,7 @@ function openPrivateChat(friendUID, friendName, friendPhoto, isUnknown) {
   loadConversation("private");
 }
 
-// ===== OPEN GROUP CHAT =====
+
 function openGroupChat(groupID, groupName, groupPhoto) {
   activeChatID = groupID;
   activeChatType = "group";
@@ -1167,7 +1156,7 @@ function openGroupChat(groupID, groupName, groupPhoto) {
     });
 
   document.getElementById("inputArea").style.display = "flex";
-  // Cleanup on chat switch
+ 
   if (currentAudio) {
     currentAudio.pause();
     currentAudio = null;
@@ -1182,7 +1171,6 @@ function openGroupChat(groupID, groupName, groupPhoto) {
   loadConversation("group");
 }
 
-// ===== GROUP PANEL =====
 function toggleGroupPanel(groupID) {
   var panel = document.getElementById("groupInfoPanel");
   if (panel.style.display !== "none") {
@@ -1307,7 +1295,7 @@ function loadConversation(type) {
         snapshot.forEach(function (doc) {
           var data = doc.data();
           var docId = doc.id;
-          // Skip if deleted for this user
+   
           if (data.deletedFor && data.deletedFor[currentUser.uid]) return;
           var isMine = data.senderUID === currentUser.uid;
           lastMsg = data;
@@ -1516,11 +1504,15 @@ function watchTyping() {
         return;
       }
       var data = doc.data();
-      // Check if anyone OTHER than me is typing
       var someoneElseTyping = Object.keys(data).some(function (k) {
         return k !== myField && data[k] === true;
       });
-      el.style.display = someoneElseTyping ? "flex" : "none";
+      if (someoneElseTyping) {
+        el.style.display = "flex";
+        el.style.setProperty('display', 'flex', 'important');
+      } else {
+        el.style.display = "none";
+      }
     });
 }
 
@@ -1653,7 +1645,7 @@ function toggleReaction(docId, type, emoji) {
   });
 }
 
-// ===== AUTO REPLY SUGGESTIONS =====
+
 var autoReplyMap = {
   hi: ["Hi! 👋", "Hello!", "Hey, what's up?"],
   hello: ["Hello! 😊", "Hi there!", "Hey!"],
@@ -1736,7 +1728,7 @@ function escapeHtml(text) {
     .replace(/>/g, "&gt;");
 }
 
-// ===== SEND MESSAGE =====
+
 function sendMessage() {
   var message = document.getElementById("message").value.trim();
   if (!message) return;
@@ -1829,7 +1821,7 @@ function sendMessage() {
   hideAutoReplies();
 }
 
-// ===== CREATE GROUP =====
+
 function showCreateGroup() {
   var ml = document.getElementById("membersList");
   ml.innerHTML = "";
@@ -1931,7 +1923,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// ===== VOICE MESSAGE =====
+
 var mediaRecorder = null;
 var audioChunks = [];
 var voiceTimerInt = null;
@@ -2033,7 +2025,7 @@ function stopAndSendVoice() {
     var reader = new FileReader();
     reader.onload = function (e) {
       var base64 = e.target.result;
-      // Size check: ~900KB max (safe for Firestore 1MB limit)
+     
       if (base64.length > 900000) {
         showToast("Voice too long! Max 50 seconds.", "error");
         hideVoiceUI();
@@ -2135,7 +2127,6 @@ function playVoiceMsg(btn) {
   });
 }
 
-// ===== MESSAGE DELETE =====
 var _msgMenuDocId = null,
   _msgMenuType = null,
   _msgMenuIsMine = false;
@@ -2222,7 +2213,7 @@ function hideMsgMenu() {
 }
 
 function confirmDeleteForAll(docId, type) {
-  // Show confirmation modal
+
   var modal = document.getElementById("deleteForAllModal");
   if (!modal) return;
   modal.style.display = "flex";
@@ -2250,7 +2241,7 @@ function deleteMsg(docId, type, mode) {
           .doc(docId);
 
   if (mode === "all") {
-    // Delete entire document
+
     msgRef
       .delete()
       .then(function () {
@@ -2260,7 +2251,7 @@ function deleteMsg(docId, type, mode) {
         showToast("Error: " + e.message, "error");
       });
   } else {
-    // Delete for me — mark with deletedFor array
+  
     var upd = {};
     upd["deletedFor." + currentUser.uid] = true;
     msgRef
@@ -2274,13 +2265,12 @@ function deleteMsg(docId, type, mode) {
   }
 }
 
-// ===== REPLY TO MESSAGE =====
 var _replyData = null;
 
 function replyToMsg(docId, type) {
   var row = document.getElementById("msgrow_" + docId);
   if (!row) return;
-  // Get sender and text from rendered row
+
   var senderEl = row.querySelector(".msg-sender");
   var textEl = row.querySelector(".msg-text");
   var isVoice = row.querySelector(".voice-msg-player") ? true : false;
@@ -2294,7 +2284,7 @@ function replyToMsg(docId, type) {
     text: isVoice ? "" : textEl ? textEl.textContent : "",
     voiceBase64: isVoice ? "1" : "",
   };
-  // Show reply bar
+
   var bar = document.getElementById("replyBar");
   if (!bar) return;
   bar.style.display = "flex";
@@ -2311,7 +2301,6 @@ function cancelReply() {
   if (bar) bar.style.display = "none";
 }
 
-// ===== EMOJI PICKER =====
 var _emojiPickerOpen = false;
 var EMOJI_LIST = [
   "😀",
@@ -2396,7 +2385,7 @@ var EMOJI_LIST = [
   "🧃",
 ];
 
-// Populate emoji picker grid
+
 function initEmojiPicker() {
   var picker = document.getElementById("emojiPicker");
   if (!picker || picker.children.length > 0) return;
@@ -2439,7 +2428,6 @@ function closeEmojiPicker() {
   if (picker) picker.style.display = "none";
 }
 
-// ===== MESSAGE SEARCH =====
 function toggleMsgSearch() {
   var bar = document.getElementById("msgSearchBar");
   if (!bar) return;
@@ -2503,7 +2491,7 @@ function clearMsgSearch() {
   document.querySelectorAll(".msg-row").forEach(function (r) {
     r.style.opacity = "1";
   });
-  // Restore text (re-render is cleanest but just reset innerHTML)
+
   document.querySelectorAll(".msg-text mark").forEach(function (m) {
     m.outerHTML = m.textContent;
   });
@@ -2511,7 +2499,7 @@ function clearMsgSearch() {
   if (info) info.textContent = "";
 }
 
-// Close emoji picker on outside click
+
 document.addEventListener("click", function (e) {
   var picker = document.getElementById("emojiPicker");
   if (picker && picker.style.display !== "none") {
@@ -2520,6 +2508,36 @@ document.addEventListener("click", function (e) {
       return;
     closeEmojiPicker();
   }
+});
+
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function() {
+        var inputArea = document.getElementById('inputArea');
+        var messagesDiv = document.getElementById('messages');
+        if (!inputArea) return;
+    
+        var keyboardHeight = window.innerHeight - window.visualViewport.height;
+        if (keyboardHeight > 100) {
+            document.querySelector('.chat-area').style.paddingBottom = keyboardHeight + 'px';
+        } else {
+            document.querySelector('.chat-area').style.paddingBottom = '0';
+        }
+
+        setTimeout(function() {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 100);
+    });
+}
+
+
+document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.id === 'message') {
+        setTimeout(function() {
+            var messagesDiv = document.getElementById('messages');
+            if (messagesDiv) messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 400);
+    }
 });
 
 function logout() {
