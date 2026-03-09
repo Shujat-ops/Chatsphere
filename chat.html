@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatSphere</title>
+<link rel="icon" type="image/png" href="Assets/images/logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="Assets/css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="app-navbar">
+    <div class="nav-left">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Menu">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="nav-brand">
+            <div class="nav-brand-icon">
+                <img src="Assets/images/logo.png" alt="ChatSphere">
+            </div>
+            <span class="nav-brand-text">Chat<em>Sphere</em></span>
+        </div>
+    </div>
+    <div class="nav-right">
+        <button class="nav-icon-btn" onclick="toggleNotifPanel()" title="Notifications">
+            <i class="fas fa-bell"></i>
+            <span class="nav-badge" id="notifBadge">0</span>
+        </button>
+        <div class="nav-user-chip" id="navChip" onclick="showProfileModal()" title="Edit Profile">
+            <div id="navAvatar" class="nav-avatar"></div>
+            <span class="chip-name" id="navUserName"></span>
+            <i class="fas fa-chevron-down chip-arrow"></i>
+        </div>
+    </div>
+</nav>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+    <div class="notif-header-row">
+        <span class="notif-title"><i class="fas fa-bell"></i> Notifications</span>
+        <div class="notif-stats-row">
+            <span class="notif-stat-chip">Chats <b id="statChats">0</b></span>
+            <span class="notif-stat-chip unread">Unread <b id="statUnread">0</b></span>
+        </div>
+    </div>
+    <div id="notifList"></div>
+</div>
+
+<!-- APP BODY -->
+<div class="app-body">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="my-profile" id="myProfile"></div>
+
+        <div class="search-bar">
+            <div class="search-input-wrap">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" id="friendEmail" placeholder="Search by email…" autocomplete="off">
+            </div>
+            <button class="search-btn" onclick="searchUser()">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <div id="searchResult" class="search-result-wrap"></div>
+        <div class="stories-row" id="storiesRow" style="display:none;"></div>
+
+        <div class="sidebar-scroll">
+            <div class="section-label"><span><i class="fas fa-clock-rotate-left"></i> Requests</span></div>
+            <div id="pendingRequests"></div>
+
+            <div class="section-label"><span><i class="fas fa-message"></i> Recent</span></div>
+            <div id="recentChats"></div>
+
+            <div class="section-label"><span><i class="fas fa-address-book"></i> Contacts</span></div>
+            <div id="friendsList"></div>
+
+            <div class="section-label section-label-action">
+                <span><i class="fas fa-users"></i> Groups</span>
+                <button class="new-group-btn" onclick="showCreateGroup()">
+                    <i class="fas fa-plus"></i> New
+                </button>
+            </div>
+            <div id="groupsList"></div>
+        </div>
+    </aside>
+
+    <!-- CHAT AREA -->
+    <main class="chat-area">
+        <header class="chat-header" id="chatHeader">
+            <div class="chat-header-empty">
+                <div class="empty-logo-wrap">
+                    <img src="Assets/images/logo.png" class="empty-logo-img" alt="">
+                </div>
+                <div>
+                    <div class="empty-brand-name">ChatSphere</div>
+                    <div class="empty-subtitle">Select a conversation to begin</div>
+                </div>
+            </div>
+        </header>
+
+        <div id="groupInfoPanel" class="group-info-panel" style="display:none;"></div>
+
+        <div id="messages">
+            <div class="chat-empty-state">
+                <div class="empty-icon-ring"><i class="fas fa-comments"></i></div>
+                <p class="empty-state-title">No conversation open</p>
+                <p class="empty-state-sub">Choose a contact from the sidebar to start chatting</p>
+            </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div id="typingIndicator" class="typing-indicator" style="display:none;">
+            <div class="typing-dots">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            </div>
+            <span class="typing-label">typing…</span>
+        </div>
+
+        <!-- Auto replies -->
+        <div id="autoReplies" class="auto-replies-bar" style="display:none;"></div>
+
+        <!-- Reply bar -->
+        <div id="replyBar" class="reply-bar" style="display:none;">
+            <div class="reply-bar-inner">
+                <i class="fas fa-reply reply-bar-icon"></i>
+                <div class="reply-bar-content">
+                    <span id="replyBarSender" class="reply-bar-sender"></span>
+                    <span id="replyBarText" class="reply-bar-text"></span>
+                </div>
+            </div>
+            <button class="reply-bar-close" onclick="cancelReply()"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <!-- Message search bar -->
+        <div id="msgSearchBar" class="msg-search-bar" style="display:none;">
+            <i class="fas fa-magnifying-glass msg-search-icon"></i>
+            <input id="msgSearchInput" type="text" placeholder="Search in this chat…" oninput="doMsgSearch()" autocomplete="off">
+            <span id="msgSearchInfo" class="msg-search-count"></span>
+            <button class="msg-search-close" onclick="toggleMsgSearch()"><i class="fas fa-xmark"></i></button>
+        </div>
+
+        <!-- Emoji picker -->
+        <div id="emojiPicker" class="emoji-picker" style="display:none;"></div>
+
+        <!-- Voice recording UI -->
+        <div id="voiceRecordingUI" class="voice-record-bar" style="display:none;">
+            <div class="voice-rec-dot"></div>
+            <span class="voice-rec-label">Recording</span>
+            <span id="voiceTimer" class="voice-rec-timer">0:00</span>
+            <div class="voice-wave">
+                <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="voice-rec-actions">
+                <button class="voice-btn-cancel" onclick="cancelVoice()" title="Cancel">
+                    <i class="fas fa-xmark"></i>
+                </button>
+                <button class="voice-btn-send" onclick="stopAndSendVoice()" title="Send">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="input-area" id="inputArea" style="display:none;">
+            <button class="input-icon-btn" onclick="toggleEmojiPicker()" title="Emoji" id="emojiBtn">
+                <i class="far fa-face-smile"></i>
+            </button>
+            <div class="input-field-wrap">
+                <input type="text" id="message" placeholder="Type a message…" autocomplete="off">
+            </div>
+            <button class="input-icon-btn" onclick="toggleMsgSearch()" title="Search messages">
+                <i class="fas fa-magnifying-glass"></i>
+            </button>
+            <button class="input-icon-btn" id="micBtn" onclick="toggleVoiceRecord()" title="Voice message">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button class="send-btn" onclick="sendMessage()" title="Send">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </main>
+</div>
+
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Profile -->
+<div id="profileModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div class="modal-icon modal-icon--cyan"><i class="fas fa-user-pen"></i></div>
+            <h3 class="modal-title">Edit Profile</h3>
+            <button class="modal-close-x" onclick="closeProfileModal()"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="modal-avatar-wrap" id="profilePreviewWrap">
+            <div id="profilePreviewImg" class="modal-avatar-ring"></div>
+            <label for="profilePhotoInput" class="avatar-change-btn" title="Change photo">
+                <i class="fas fa-camera"></i>
+            </label>
+        </div>
+        <div class="form-field">
+            <label class="form-label">Display Name</label>
+            <input type="text" id="editDisplayName" class="form-input" placeholder="Your name…">
+        </div>
+        <div class="form-field">
+            <label class="form-label">Profile Photo</label>
+            <label for="profilePhotoInput" class="file-pick-row">
+                <i class="fas fa-image"></i>
+                <span id="profilePhotoLabel">Click to choose a photo…</span>
+            </label>
+            <input type="file" id="profilePhotoInput" accept="image/*" style="display:none;" onchange="previewProfilePhoto(this)">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn--primary" onclick="saveProfile()"><i class="fas fa-check"></i> Save</button>
+            <button class="btn btn--ghost" onclick="closeProfileModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Contact -->
+<div id="removeContactModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card modal-card--center">
+        <div class="modal-icon modal-icon--warn modal-icon--lg"><i class="fas fa-user-minus"></i></div>
+        <h3 class="modal-title">Remove Contact?</h3>
+        <p class="modal-desc">This person will be removed from your contacts. You can add them again later.</p>
+        <div class="modal-actions modal-actions--center">
+            <button class="btn btn--warn" onclick="confirmRemoveContact()"><i class="fas fa-user-minus"></i> Remove</button>
+            <button class="btn btn--ghost" onclick="document.getElementById('removeContactModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Chat -->
+<div id="deleteChatModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card modal-card--center">
+        <div class="modal-icon modal-icon--danger modal-icon--lg"><i class="fas fa-trash-can"></i></div>
+        <h3 class="modal-title">Delete Chat?</h3>
+        <p class="modal-desc">All messages will be permanently deleted. This cannot be undone.</p>
+        <div class="modal-actions modal-actions--center">
+            <button class="btn btn--danger" onclick="confirmDeleteChat()"><i class="fas fa-trash-can"></i> Delete</button>
+            <button class="btn btn--ghost" onclick="document.getElementById('deleteChatModal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete for Everyone -->
+<div id="deleteForAllModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card modal-card--center">
+        <div class="modal-icon modal-icon--danger modal-icon--lg"><i class="fas fa-trash-alt"></i></div>
+        <h3 class="modal-title">Delete for Everyone?</h3>
+        <p class="modal-desc">This message will be removed permanently for all participants in the chat.</p>
+        <div class="modal-actions modal-actions--center">
+            <button class="btn btn--danger" id="deleteForAllConfirmBtn"><i class="fas fa-trash-alt"></i> Delete</button>
+            <button class="btn btn--ghost" id="deleteForAllCancelBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Create Group -->
+<div id="groupModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card modal-card--wide">
+        <div class="modal-header">
+            <div class="modal-icon modal-icon--cyan"><i class="fas fa-users"></i></div>
+            <h3 class="modal-title">Create New Group</h3>
+            <button class="modal-close-x" onclick="hideCreateGroup()"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="form-field">
+            <label class="form-label">Group Name</label>
+            <input type="text" id="groupName" class="form-input" placeholder="Enter group name…">
+        </div>
+        <div class="form-field">
+            <label class="form-label">Group Photo <span class="form-label-hint">(optional)</span></label>
+            <label for="groupPhoto" class="file-pick-row">
+                <i class="fas fa-image"></i>
+                <span id="groupPhotoLabel">Click to choose a photo…</span>
+            </label>
+            <input type="file" id="groupPhoto" accept="image/*" style="display:none;"
+                   onchange="document.getElementById('groupPhotoLabel').textContent=this.files[0]?this.files[0].name:'Click to choose a photo…'">
+        </div>
+        <div class="form-field">
+            <label class="form-label">Select Members</label>
+            <div id="membersList" class="members-list"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn--primary" onclick="createGroup()"><i class="fas fa-check"></i> Create Group</button>
+            <button class="btn btn--ghost" onclick="hideCreateGroup()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="Assets/js/firebase.js"></script>
+<script src="Assets/js/chat.js"></script>
+</body>
+</html>
