@@ -1305,8 +1305,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    body { overflow: auto; }
-
     .glass-card { padding: 26px 18px; border-radius: 18px; margin: 10px; max-width: 100%; }
     .input-group-custom { margin-bottom: 40px; }
     .nav-brand-text { font-size: .85rem; }
@@ -1329,49 +1327,12 @@ body {
     .sidebar-toggle { display: flex !important; }
     .sidebar-overlay { top: 55px; }
 
-    .chat-area { width: 100%; }
+    .chat-area { width: 100%; height: 100%; overflow: hidden; }
     .msg-bubble { max-width: 82%; font-size: 13px; }
     .notif-panel { width: calc(100vw - 24px); right: 12px; }
     .input-area { padding: 8px 10px; gap: 7px; }
     .chat-header { padding: 0 10px; min-height: 54px; gap: 8px; }
-    #messages { padding: 12px 10px; }
+    #messages { padding: 12px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .auto-replies-bar { padding: 5px 10px 4px; gap: 5px; }
     .auto-reply-btn { padding: 4px 10px; font-size: 11.5px; }
-}
-
-
-@media (max-width: 768px) {
-
-    .chat-area {
-        height: 100%;
-        position: relative;
-    }
-
-    #messages {
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .input-area {
-        position: sticky;
-        bottom: 0;
-        z-index: 10;
-        background: var(--header);
-    }
-
-
-    .typing-indicator[style*="flex"] {
-        display: flex !important;
-    }
-
-
-    .reply-bar,
-    .msg-search-bar,
-    .emoji-picker,
-    .voice-record-bar,
-    .auto-replies-bar {
-        position: sticky;
-        bottom: 0;
-        z-index: 9;
-    }
 }
