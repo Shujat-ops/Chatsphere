@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
+
 <nav class="app-navbar">
     <div class="nav-left">
         <button class="sidebar-toggle" onclick="toggleSidebar()" title="Menu">
@@ -37,7 +37,7 @@
     </div>
 </nav>
 
-<!-- NOTIFICATION PANEL -->
+
 <div class="notif-panel" id="notifPanel">
     <div class="notif-header-row">
         <span class="notif-title"><i class="fas fa-bell"></i> Notifications</span>
@@ -49,11 +49,10 @@
     <div id="notifList"></div>
 </div>
 
-<!-- APP BODY -->
+
 <div class="app-body">
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="my-profile" id="myProfile"></div>
 
@@ -90,7 +89,7 @@
         </div>
     </aside>
 
-    <!-- CHAT AREA -->
+ 
     <main class="chat-area">
         <header class="chat-header" id="chatHeader">
             <div class="chat-header-empty">
@@ -114,7 +113,7 @@
             </div>
         </div>
 
-        <!-- Typing indicator -->
+
         <div id="typingIndicator" class="typing-indicator" style="display:none;">
             <div class="typing-dots">
                 <span class="typing-dot"></span>
@@ -124,10 +123,8 @@
             <span class="typing-label">typing…</span>
         </div>
 
-        <!-- Auto replies -->
         <div id="autoReplies" class="auto-replies-bar" style="display:none;"></div>
 
-        <!-- Reply bar -->
         <div id="replyBar" class="reply-bar" style="display:none;">
             <div class="reply-bar-inner">
                 <i class="fas fa-reply reply-bar-icon"></i>
@@ -139,7 +136,6 @@
             <button class="reply-bar-close" onclick="cancelReply()"><i class="fas fa-xmark"></i></button>
         </div>
 
-        <!-- Message search bar -->
         <div id="msgSearchBar" class="msg-search-bar" style="display:none;">
             <i class="fas fa-magnifying-glass msg-search-icon"></i>
             <input id="msgSearchInput" type="text" placeholder="Search in this chat…" oninput="doMsgSearch()" autocomplete="off">
@@ -147,10 +143,10 @@
             <button class="msg-search-close" onclick="toggleMsgSearch()"><i class="fas fa-xmark"></i></button>
         </div>
 
-        <!-- Emoji picker -->
+    
         <div id="emojiPicker" class="emoji-picker" style="display:none;"></div>
 
-        <!-- Voice recording UI -->
+
         <div id="voiceRecordingUI" class="voice-record-bar" style="display:none;">
             <div class="voice-rec-dot"></div>
             <span class="voice-rec-label">Recording</span>
@@ -168,7 +164,6 @@
             </div>
         </div>
 
-        <!-- Input area -->
         <div class="input-area" id="inputArea" style="display:none;">
             <button class="input-icon-btn" onclick="toggleEmojiPicker()" title="Emoji" id="emojiBtn">
                 <i class="far fa-face-smile"></i>
@@ -190,9 +185,6 @@
 </div>
 
 
-<!-- ═══ MODALS ═══ -->
-
-<!-- Profile -->
 <div id="profileModal" class="modal-backdrop" style="display:none;">
     <div class="modal-card">
         <div class="modal-header">
@@ -225,7 +217,7 @@
     </div>
 </div>
 
-<!-- Remove Contact -->
+
 <div id="removeContactModal" class="modal-backdrop" style="display:none;">
     <div class="modal-card modal-card--center">
         <div class="modal-icon modal-icon--warn modal-icon--lg"><i class="fas fa-user-minus"></i></div>
@@ -238,7 +230,6 @@
     </div>
 </div>
 
-<!-- Delete Chat -->
 <div id="deleteChatModal" class="modal-backdrop" style="display:none;">
     <div class="modal-card modal-card--center">
         <div class="modal-icon modal-icon--danger modal-icon--lg"><i class="fas fa-trash-can"></i></div>
@@ -251,7 +242,7 @@
     </div>
 </div>
 
-<!-- Delete for Everyone -->
+
 <div id="deleteForAllModal" class="modal-backdrop" style="display:none;">
     <div class="modal-card modal-card--center">
         <div class="modal-icon modal-icon--danger modal-icon--lg"><i class="fas fa-trash-alt"></i></div>
@@ -264,7 +255,6 @@
     </div>
 </div>
 
-<!-- Create Group -->
 <div id="groupModal" class="modal-backdrop" style="display:none;">
     <div class="modal-card modal-card--wide">
         <div class="modal-header">
