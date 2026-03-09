@@ -50,6 +50,7 @@ body {
     background: var(--bg);
     color: var(--text);
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1305,13 +1306,15 @@ body {
 }
 
 @media (max-width: 768px) {
+    body { overflow: auto; }
+
     .glass-card { padding: 26px 18px; border-radius: 18px; margin: 10px; max-width: 100%; }
     .input-group-custom { margin-bottom: 40px; }
     .nav-brand-text { font-size: .85rem; }
     .chip-name { display: none; }
 
     .app-navbar { padding: 0 12px; height: 55px; z-index: 300; position: relative; }
-    .app-body { position: relative; overflow: hidden; height: calc(100vh - 55px); }
+    .app-body { position: relative; overflow: hidden; height: calc(100vh - 55px); height: calc(100dvh - 55px); }
 
     .sidebar {
         position: fixed;
@@ -1322,17 +1325,107 @@ body {
         transition: left .26s cubic-bezier(.4,0,.2,1);
         box-shadow: 4px 0 30px rgba(0,0,0,0.6);
         height: calc(100vh - 55px);
+        height: calc(100dvh - 55px);
     }
     .sidebar.open { left: 0; }
     .sidebar-toggle { display: flex !important; }
     .sidebar-overlay { top: 55px; }
 
-    .chat-area { width: 100%; height: 100%; overflow: hidden; }
+    .chat-area { width: 100%; }
     .msg-bubble { max-width: 82%; font-size: 13px; }
     .notif-panel { width: calc(100vw - 24px); right: 12px; }
-    .input-area { padding: 8px 10px; gap: 7px; }
+    .input-area {
+        padding: 8px 10px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        gap: 7px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+    }
+    /* Messages ko input area se upar rakhne ke liye */
+    #messages {
+        padding-bottom: 72px !important;
+    }
     .chat-header { padding: 0 10px; min-height: 54px; gap: 8px; }
-    #messages { padding: 12px 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    #messages { padding: 12px 10px; }
     .auto-replies-bar { padding: 5px 10px 4px; gap: 5px; }
     .auto-reply-btn { padding: 4px 10px; font-size: 11.5px; }
+}
+
+
+@media (max-width: 768px) {
+
+    .chat-area {
+        height: 100%;
+        position: relative;
+    }
+
+    #messages {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .input-area {
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        background: var(--header);
+    }
+
+
+    .typing-indicator[style*="flex"] {
+        display: flex !important;
+    }
+
+
+    .reply-bar,
+    .msg-search-bar,
+    .emoji-picker,
+    .voice-record-bar,
+    .auto-replies-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 9;
+    }
+}
+/* ═══ MOBILE INPUT FIXED BOTTOM FIX ═══ */
+@media (max-width: 768px) {
+    .reply-bar {
+        position: fixed;
+        bottom: 60px;
+        left: 0; right: 0;
+        z-index: 49;
+    }
+    .msg-search-bar {
+        position: fixed;
+        bottom: 60px;
+        left: 0; right: 0;
+        z-index: 49;
+    }
+    .emoji-picker {
+        position: fixed;
+        bottom: 60px;
+        left: 0; right: 0;
+        z-index: 49;
+    }
+    .voice-record-bar {
+        position: fixed;
+        bottom: 60px;
+        left: 0; right: 0;
+        z-index: 49;
+    }
+    .auto-replies-bar {
+        position: fixed;
+        bottom: 60px;
+        left: 0; right: 0;
+        z-index: 48;
+    }
+    .typing-indicator {
+        position: fixed;
+        bottom: 60px;
+        left: 0; right: 0;
+        z-index: 47;
+    }
 }
