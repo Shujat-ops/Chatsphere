@@ -1440,7 +1440,7 @@ function loadConversation(type) {
           row.setAttribute("data-ismine", isMine ? "1" : "0");
           row.innerHTML =
             avEl +
-            "<div class='msg-bubble' style='position:relative;'>" +
+            "<div claass='msg-bubble' id='bubble_" + docId + "' style='position:relative;'>" +
             "<div class='msg-sender'>" +
             (isMine ? "You" : data.sender) +
             "</div>" +
@@ -1474,18 +1474,16 @@ function loadConversation(type) {
             timeHTML +
             seenHTML +
             "</div>" +
-            "<div class='msg-react-btn' onclick=\"event.stopPropagation();showReactPicker('" +
-            docId +
-            "','" +
-            type +
-            "')\"><i class='fas fa-smile'></i></div>" +
+     "</div>" +
+            "<div class='msg-actions-toolbar'>" +
+            "<div class='msg-options-btn' onclick=\"event.stopPropagation();showReactPicker('" +
+            docId + "','" + type + "')\"><i class='fas fa-smile'></i></div>" +
+            "<div class='msg-options-btn' onclick=\"event.stopPropagation();replyToMsg('" +
+            docId + "')\"><i class='fas fa-reply'></i></div>" +
+            "<div class='msg-options-btn' onclick=\"event.stopPropagation();translateMessage('" +
+            docId + "','" + escapeHtml(data.text || "") + "')\"><i class='fas fa-language'></i></div>" +
             "<div class='msg-options-btn' onclick=\"event.stopPropagation();showMsgMenu(event,'" +
-            docId +
-            "','" +
-            type +
-            "'," +
-            (isMine ? "true" : "false") +
-            ")\"><i class='fas fa-ellipsis-v'></i></div>" +
+            docId + "','" + type + "','" + (isMine ? "true" : "false") + "')\"><i class='fas fa-ellipsis-v'></i></div>" +
             "</div>";
           messagesDiv.appendChild(row);
 
@@ -2514,7 +2512,7 @@ function doMsgSearch() {
     .trim()
     .toLowerCase();
   var rows = document.querySelectorAll(".msg-row");
-  var found = 0;
+  var found = 0, firstMatch = null;
   rows.forEach(function (row) {
     var textEl = row.querySelector(".msg-text");
     if (!textEl) {
@@ -2536,12 +2534,14 @@ function doMsgSearch() {
             "</mark>" +
             escapeHtml(orig.slice(qi + q.length));
           found++;
+          if (!firstMatch) firstMatch = row;
         }
       }
     } else {
       row.style.opacity = "0.25";
     }
   });
+  if (firstMatch) firstMatch.scrollIntoView({ behavior: "smooth", block: "center" });
   var info = document.getElementById("msgSearchInfo");
   if (info)
     info.textContent = q ? found + " result" + (found !== 1 ? "s" : "") : "";
@@ -2571,6 +2571,28 @@ document.addEventListener("click", function (e) {
   }
 });
 
+
+var _heartbeatInterval=null;
+function startHeartbeat(){
+  stopHeartbeat();
+  db.collection("presence").doc(currentUser.uid).set({online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp(),heartbeat:firebase.firestore.FieldValue.serverTimestamp()});
+  _heartbeatInterval=setInterval(function(){
+    if(currentUser&&document.visibilityState!=="hidden")
+      db.collection("presence").doc(currentUser.uid).set({online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp(),heartbeat:firebase.firestore.FieldValue.serverTimestamp()});
+  },30000);
+}
+function stopHeartbeat(){if(_heartbeatInterval){clearInterval(_heartbeatInterval);_heartbeatInterval=null;}}
+function setPresenceOff(){if(!currentUser)return;db.collection("presence").doc(currentUser.uid).set({online:false,lastSeen:firebase.firestore.FieldValue.serverTimestamp(),heartbeat:firebase.firestore.FieldValue.serverTimestamp()});}
+window.addEventListener("beforeunload",function(){stopHeartbeat();setPresenceOff();});
+window.addEventListener("pagehide",function(){stopHeartbeat();setPresenceOff();});
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden"){stopHeartbeat();setPresenceOff();}else if(currentUser)startHeartbeat();});
+window.addEventListener("online",function(){if(currentUser)startHeartbeat();});
+window.addEventListener("offline",function(){stopHeartbeat();setPresenceOff();});
+var _statsPanelOpen=false;
+function toggleStatsPanel(){var panel=document.getElementById("statsPanel");if(!panel)return;_statsPanelOpen=!_statsPanelOpen;panel.classList.toggle("open",_statsPanelOpen);if(_statsPanelOpen){var np=document.getElementById("notifPanel");if(np)np.style.display="none";loadStats();}}
+function loadStats(){if(!currentUser)return;var uid=currentUser.uid;var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};db.collection("recentChats").where("ownerUID","==",uid).get().then(function(snap){var sent=0,recv=0,react=0,unread=0,p=[];set("statTotalChats",snap.size);snap.forEach(function(doc){var cid=doc.data().chatID||"";if(!cid)return;p.push(db.collection("conversations").doc(cid).collection("messages").get().then(function(msgs){msgs.forEach(function(m){var md=m.data();if(md.senderUID===uid)sent++;else recv++;if(md.reactions)react+=Object.keys(md.reactions).length;if(md.seenBy&&!md.seenBy[uid]&&md.senderUID!==uid)unread++;});}).catch(function(){}));});Promise.all(p).then(function(){set("statTotalSent",sent);set("statTotalReceived",recv);set("statTotalReactions",react);set("statUnread2",unread);});}).catch(function(){});db.collection("groups").where("members","array-contains",uid).get().then(function(s){set("statTotalGroups",s.size);}).catch(function(){});var t=new Date();t.setHours(0,0,0,0);db.collection("recentChats").where("ownerUID","==",uid).get().then(function(snap){var daily=0,p=[];snap.forEach(function(doc){var cid=doc.data().chatID||"";if(!cid)return;p.push(db.collection("conversations").doc(cid).collection("messages").where("senderUID","==",uid).where("timestamp",">=",t).get().then(function(m){daily+=m.size;}).catch(function(){}));});Promise.all(p).then(function(){set("statDailyMessages",daily);});}).catch(function(){});}
+function translateMessage(msgId,text){if(!text||!text.trim()){showToast("No text to translate.","error");return;}var bar=document.getElementById("trans_"+msgId);if(bar){bar.classList.toggle("show");return;}var bubble=document.getElementById("bubble_"+msgId);if(!bubble){showToast("Translation unavailable.","error");return;}var tb=document.createElement("div");tb.className="trans-bar show";tb.id="trans_"+msgId;tb.innerHTML="<div class='trans-bar-label'>🌐 Urdu</div><div class='trans-bar-text trans-loading'>Translating…</div>";bubble.appendChild(tb);fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text)+"&langpair=en|ur").then(function(r){return r.json();}).then(function(d){var t=d.responseData&&d.responseData.translatedText?d.responseData.translatedText:"Unavailable";var el=tb.querySelector(".trans-bar-text");if(el){el.classList.remove("trans-loading");el.textContent=t;}}).catch(function(){var el=tb.querySelector(".trans-bar-text");if(el)el.textContent="Failed.";});}
+document.addEventListener("focusin",function(e){if(e.target&&e.target.id==="message"){setTimeout(function(){var m=document.getElementById("messages");if(m)m.scrollTop=m.scrollHeight;},400);}});
 function logout() {
   setPresence(false);
   auth.signOut().then(function () {
