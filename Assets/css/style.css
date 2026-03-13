@@ -50,7 +50,6 @@ body {
     background: var(--bg);
     color: var(--text);
     height: 100vh;
-    height: 100dvh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -675,22 +674,38 @@ body {
 
 
 
-.msg-options-btn {
-    position: absolute;
-    top: 6px; right: 7px;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: rgba(0,0,0,0.28);
+/* Message action toolbar — floats above bubble on hover */
+.msg-actions-toolbar {
     display: none;
+    align-items: center;
+    gap: 2px;
+    background: var(--header);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 6px;
+    z-index: 10;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    white-space: nowrap;
+    align-self: flex-end;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+.msg-row:hover .msg-actions-toolbar { display: flex; }
+.msg-row:hover .msg-actions-toolbar { display: flex; }
+
+.msg-options-btn {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
     align-items: center; justify-content: center;
     cursor: pointer;
-    font-size: 11px; color: var(--text-soft);
-    z-index: 2;
+    font-size: 12px; color: var(--text-soft);
     transition: background .14s, color .14s;
     border: none;
+    flex-shrink: 0;
 }
 .msg-options-btn:hover { background: var(--accent-dim); color: var(--accent); }
-.msg-bubble:hover .msg-options-btn { display: flex; }
 
 
 #msgContextMenu {
@@ -1306,8 +1321,6 @@ body {
 }
 
 @media (max-width: 768px) {
-    body { overflow: auto; }
-
     .glass-card { padding: 26px 18px; border-radius: 18px; margin: 10px; max-width: 100%; }
     .input-group-custom { margin-bottom: 40px; }
     .nav-brand-text { font-size: .85rem; }
@@ -1324,14 +1337,13 @@ body {
         z-index: 250;
         transition: left .26s cubic-bezier(.4,0,.2,1);
         box-shadow: 4px 0 30px rgba(0,0,0,0.6);
-        height: calc(100vh - 55px);
-        height: calc(100dvh - 55px);
+        height: calc(100vh - 55px); height: calc(100dvh - 55px);
     }
     .sidebar.open { left: 0; }
     .sidebar-toggle { display: flex !important; }
     .sidebar-overlay { top: 55px; }
 
-    .chat-area { width: 100%; }
+    .chat-area { width: 100%; height: 100%; overflow: hidden; }
     .msg-bubble { max-width: 82%; font-size: 13px; }
     .notif-panel { width: calc(100vw - 24px); right: 12px; }
     .input-area {
@@ -1339,93 +1351,74 @@ body {
         padding-bottom: max(8px, env(safe-area-inset-bottom));
         gap: 7px;
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 0; left: 0; right: 0;
         z-index: 50;
-    }
-    /* Messages ko input area se upar rakhne ke liye */
-    #messages {
-        padding-bottom: 72px !important;
+        background: var(--sidebar);
+        border-top: 1px solid var(--border);
     }
     .chat-header { padding: 0 10px; min-height: 54px; gap: 8px; }
-    #messages { padding: 12px 10px; }
+    #messages { padding: 12px 10px 80px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     .auto-replies-bar { padding: 5px 10px 4px; gap: 5px; }
     .auto-reply-btn { padding: 4px 10px; font-size: 11.5px; }
 }
-
-
 @media (max-width: 768px) {
-
-    .chat-area {
-        height: 100%;
-        position: relative;
-    }
-
-    #messages {
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .input-area {
-        position: sticky;
-        bottom: 0;
-        z-index: 10;
-        background: var(--header);
-    }
-
-
-    .typing-indicator[style*="flex"] {
-        display: flex !important;
-    }
-
-
-    .reply-bar,
-    .msg-search-bar,
-    .emoji-picker,
-    .voice-record-bar,
-    .auto-replies-bar {
-        position: sticky;
-        bottom: 0;
-        z-index: 9;
-    }
+    .reply-bar        { position: fixed; bottom: 58px; left: 0; right: 0; z-index: 49; }
+    .msg-search-bar   { position: fixed; bottom: 58px; left: 0; right: 0; z-index: 49; }
+    .emoji-picker     { position: fixed; bottom: 58px; left: 0; right: 0; z-index: 49; max-height: 200px; overflow-y: auto; }
+    .voice-record-bar { position: fixed; bottom: 58px; left: 0; right: 0; z-index: 49; }
+    .auto-replies-bar { position: fixed; bottom: 58px; left: 0; right: 0; z-index: 48; }
+    .typing-indicator { position: fixed; bottom: 58px; left: 0; right: 0; z-index: 47; }
 }
-/* ═══ MOBILE INPUT FIXED BOTTOM FIX ═══ */
+
+.stats-panel {
+    position: fixed;
+    top: 58px; right: 0;
+    width: 300px; max-height: calc(100vh - 58px);
+    background: var(--sidebar);
+    border-left: 1px solid var(--border);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 16px;
+    transform: translateX(100%);
+    transition: transform .26s cubic-bezier(.4,0,.2,1);
+}
+.stats-panel.open { transform: translateX(0); }
+.stats-panel-title {
+    font-size: 13px; font-weight: 700;
+    color: var(--accent); letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+}
+.stat-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px; color: var(--text-soft);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-val {
+    font-size: 16px; font-weight: 700;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+}
+
+.trans-bar {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--text-soft);
+    display: none;
+}
+.trans-bar.show { display: block; }
+.trans-bar-label {
+    font-size: 10px; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+.trans-bar-text { color: var(--text); font-size: 13px; line-height: 1.5; }
+.trans-loading { color: var(--text-soft); font-style: italic; }
+
 @media (max-width: 768px) {
-    .reply-bar {
-        position: fixed;
-        bottom: 60px;
-        left: 0; right: 0;
-        z-index: 49;
-    }
-    .msg-search-bar {
-        position: fixed;
-        bottom: 60px;
-        left: 0; right: 0;
-        z-index: 49;
-    }
-    .emoji-picker {
-        position: fixed;
-        bottom: 60px;
-        left: 0; right: 0;
-        z-index: 49;
-    }
-    .voice-record-bar {
-        position: fixed;
-        bottom: 60px;
-        left: 0; right: 0;
-        z-index: 49;
-    }
-    .auto-replies-bar {
-        position: fixed;
-        bottom: 60px;
-        left: 0; right: 0;
-        z-index: 48;
-    }
-    .typing-indicator {
-        position: fixed;
-        bottom: 60px;
-        left: 0; right: 0;
-        z-index: 47;
-    }
+    .stats-panel { width: 100%; top: 55px; }
 }
