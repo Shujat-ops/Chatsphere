@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChatSphere</title>
 <link rel="icon" type="image/png" href="Assets/images/logo.png">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="Assets/css/style.css">
 </head>
@@ -29,6 +29,9 @@
             <i class="fas fa-bell"></i>
             <span class="nav-badge" id="notifBadge">0</span>
         </button>
+        <button class="nav-icon-btn" onclick="toggleStatsPanel()" title="My Stats" id="statsNavBtn">
+            <i class="fas fa-chart-bar"></i>
+        </button>
         <div class="nav-user-chip" id="navChip" onclick="showProfileModal()" title="Edit Profile">
             <div id="navAvatar" class="nav-avatar"></div>
             <span class="chip-name" id="navUserName"></span>
@@ -47,6 +50,18 @@
         </div>
     </div>
     <div id="notifList"></div>
+</div>
+
+<!-- Stats Panel -->
+<div class="stats-panel" id="statsPanel">
+    <div class="stats-panel-title"><i class="fas fa-chart-bar"></i> My Statistics</div>
+    <div class="stat-row"><span>Total Sent</span><span class="stat-val" id="statTotalSent">—</span></div>
+    <div class="stat-row"><span>Total Received</span><span class="stat-val" id="statTotalReceived">—</span></div>
+    <div class="stat-row"><span>Total Chats</span><span class="stat-val" id="statTotalChats">—</span></div>
+    <div class="stat-row"><span>Total Groups</span><span class="stat-val" id="statTotalGroups">—</span></div>
+    <div class="stat-row"><span>Total Reactions</span><span class="stat-val" id="statTotalReactions">—</span></div>
+    <div class="stat-row"><span>Daily Messages</span><span class="stat-val" id="statDailyMessages">—</span></div>
+    <div class="stat-row"><span>Unread</span><span class="stat-val" id="statUnread2">—</span></div>
 </div>
 
 
