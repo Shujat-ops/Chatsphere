@@ -1,4 +1,3 @@
-// ================= TOAST =================
 function showToast(message, type) {
   var existing = document.getElementById("toast");
   if (existing) existing.remove();
@@ -26,7 +25,6 @@ function showToast(message, type) {
   }, 3000);
 }
 
-// ================= REGISTER =================
 $(document).ready(function () {
   $("#profileImg").on("change", function () {
     var name = this.files[0] ? this.files[0].name : "No file chosen";
