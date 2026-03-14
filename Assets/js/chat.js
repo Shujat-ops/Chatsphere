@@ -1475,7 +1475,7 @@ function loadConversation(type) {
             seenHTML +
             "</div>" +
      "</div>" +
-            "<div class='msg-actions-toolbar'>" +
+            "<div class='msg-actions-toolbar' id='toolbar_" + docId + "'>" +
             "<div class='msg-options-btn' onclick=\"event.stopPropagation();showReactPicker('" +
             docId + "','" + type + "')\"><i class='fas fa-smile'></i></div>" +
             "<div class='msg-options-btn' onclick=\"event.stopPropagation();replyToMsg('" +
@@ -2593,6 +2593,39 @@ function toggleStatsPanel(){var panel=document.getElementById("statsPanel");if(!
 function loadStats(){if(!currentUser)return;var uid=currentUser.uid;var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};db.collection("recentChats").where("ownerUID","==",uid).get().then(function(snap){var sent=0,recv=0,react=0,unread=0,p=[];set("statTotalChats",snap.size);snap.forEach(function(doc){var cid=doc.data().chatID||"";if(!cid)return;p.push(db.collection("conversations").doc(cid).collection("messages").get().then(function(msgs){msgs.forEach(function(m){var md=m.data();if(md.senderUID===uid)sent++;else recv++;if(md.reactions)react+=Object.keys(md.reactions).length;if(md.seenBy&&!md.seenBy[uid]&&md.senderUID!==uid)unread++;});}).catch(function(){}));});Promise.all(p).then(function(){set("statTotalSent",sent);set("statTotalReceived",recv);set("statTotalReactions",react);set("statUnread2",unread);});}).catch(function(){});db.collection("groups").where("members","array-contains",uid).get().then(function(s){set("statTotalGroups",s.size);}).catch(function(){});var t=new Date();t.setHours(0,0,0,0);db.collection("recentChats").where("ownerUID","==",uid).get().then(function(snap){var daily=0,p=[];snap.forEach(function(doc){var cid=doc.data().chatID||"";if(!cid)return;p.push(db.collection("conversations").doc(cid).collection("messages").where("senderUID","==",uid).where("timestamp",">=",t).get().then(function(m){daily+=m.size;}).catch(function(){}));});Promise.all(p).then(function(){set("statDailyMessages",daily);});}).catch(function(){});}
 function translateMessage(msgId,text){if(!text||!text.trim()){showToast("No text to translate.","error");return;}var bar=document.getElementById("trans_"+msgId);if(bar){bar.classList.toggle("show");return;}var bubble=document.getElementById("bubble_"+msgId);if(!bubble){showToast("Translation unavailable.","error");return;}var tb=document.createElement("div");tb.className="trans-bar show";tb.id="trans_"+msgId;tb.innerHTML="<div class='trans-bar-label'>🌐 Urdu</div><div class='trans-bar-text trans-loading'>Translating…</div>";bubble.appendChild(tb);fetch("https://api.mymemory.translated.net/get?q="+encodeURIComponent(text)+"&langpair=en|ur").then(function(r){return r.json();}).then(function(d){var t=d.responseData&&d.responseData.translatedText?d.responseData.translatedText:"Unavailable";var el=tb.querySelector(".trans-bar-text");if(el){el.classList.remove("trans-loading");el.textContent=t;}}).catch(function(){var el=tb.querySelector(".trans-bar-text");if(el)el.textContent="Failed.";});}
 document.addEventListener("focusin",function(e){if(e.target&&e.target.id==="message"){setTimeout(function(){var m=document.getElementById("messages");if(m)m.scrollTop=m.scrollHeight;},400);}});
+
+// ═══ MOBILE: Tap bubble → show toolbar ═══
+var _activeToolbar = null;
+document.addEventListener("touchend", function(e) {
+  if (window.innerWidth > 768) return;
+  // Close if tapped outside toolbar and bubble
+  var bubble = e.target.closest(".msg-bubble");
+  var toolbar = e.target.closest(".msg-actions-toolbar");
+  if (!bubble && !toolbar) {
+    if (_activeToolbar) { _activeToolbar.classList.remove("mobile-show"); _activeToolbar = null; }
+    return;
+  }
+  if (toolbar) return; 
+  if (bubble) {
+    var msgId = (bubble.id || "").replace("bubble_", "");
+    if (!msgId) return;
+    var tb = document.getElementById("toolbar_" + msgId);
+    if (!tb) return;
+    if (_activeToolbar && _activeToolbar !== tb) {
+      _activeToolbar.classList.remove("mobile-show"); _activeToolbar = null;
+    }
+    tb.classList.toggle("mobile-show");
+    _activeToolbar = tb.classList.contains("mobile-show") ? tb : null;
+  }
+}, { passive: true });
+
+document.addEventListener("click", function(e) {
+  if (window.innerWidth > 768) return;
+  if (!e.target.closest(".msg-bubble") && !e.target.closest(".msg-actions-toolbar")) {
+    if (_activeToolbar) { _activeToolbar.classList.remove("mobile-show"); _activeToolbar = null; }
+  }
+});
+
 function logout() {
   setPresence(false);
   auth.signOut().then(function () {
