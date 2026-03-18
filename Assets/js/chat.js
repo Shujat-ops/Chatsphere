@@ -89,7 +89,7 @@ auth.onAuthStateChanged(function (user) {
         startHeartbeat();
       });
   } else {
-    window.location.href = "index.html";
+    window.location.href = "login.html";
   }
 });
 
@@ -885,91 +885,51 @@ function loadContacts() {
 }
 
 var _recentChatsUnsub = null;
-function autoSaveIncomingUser(sUID, sName, sPhoto) {
-  if (!currentUser || sUID === currentUser.uid) return;
-  if (
-    myContacts.some(function (c) {
-      return c.uid === sUID;
-    })
-  )
-    return;
-  var cid = [currentUser.uid, sUID].sort().join("_");
-  var exp = new Date();
-  exp.setDate(exp.getDate() + 5);
-  db.collection("recentChats")
-    .doc(currentUser.uid + "_" + sUID)
-    .get()
-    .then(function (doc) {
-      if (!doc.exists)
-        db.collection("recentChats")
-          .doc(currentUser.uid + "_" + sUID)
-          .set({
-            ownerUID: currentUser.uid,
-            peerUID: sUID,
-            peerName: sName || "Unknown",
-            peerPhoto: sPhoto || "",
-            chatID: cid,
-            isTemporary: true,
-            expiresAt: exp,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          })
-          .catch(function () {});
-    })
-    .catch(function () {});
+function autoSaveIncomingUser(sUID,sName,sPhoto){
+  if(!currentUser||sUID===currentUser.uid)return;
+  if(myContacts.some(function(c){return c.uid===sUID;}))return;
+  var cid=[currentUser.uid,sUID].sort().join("_");
+  var exp=new Date();exp.setDate(exp.getDate()+5);
+  db.collection("recentChats").doc(currentUser.uid+"_"+sUID).get()
+    .then(function(doc){
+      if(!doc.exists)db.collection("recentChats").doc(currentUser.uid+"_"+sUID).set({
+        ownerUID:currentUser.uid,peerUID:sUID,peerName:sName||"Unknown",
+        peerPhoto:sPhoto||"",chatID:cid,isTemporary:true,expiresAt:exp,
+        updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+      }).catch(function(){});
+    }).catch(function(){});
 }
-function loadRecentChats() {
-  if (_recentChatsUnsub) return;
-  function render(snapshot) {
-    var div = document.getElementById("unknownChats");
-    var sec = document.getElementById("unknownSection");
-    if (!div) return;
-    div.innerHTML = "";
-    var now = new Date(),
-      valid = [];
-    snapshot.forEach(function (doc) {
-      var d = doc.data();
-      var exp = d.expiresAt ? d.expiresAt.toDate() : null;
-      if (exp && exp < now) {
-        doc.ref.delete();
-        return;
-      }
-      if (
-        myContacts.some(function (c) {
-          return c.uid === d.peerUID;
-        })
-      ) {
-        doc.ref.update({ isTemporary: false }).catch(function () {});
-        return;
+function loadRecentChats(){
+  if(_recentChatsUnsub)return;
+  function render(snapshot){
+    var div=document.getElementById("unknownChats");
+    var sec=document.getElementById("unknownSection");
+    if(!div)return;
+    div.innerHTML="";
+    var now=new Date(),valid=[];
+    snapshot.forEach(function(doc){
+      var d=doc.data();
+      var exp=d.expiresAt?d.expiresAt.toDate():null;
+      if(exp&&exp<now){doc.ref.delete();return;}
+      if(myContacts.some(function(c){return c.uid===d.peerUID;})){
+        doc.ref.update({isTemporary:false}).catch(function(){});return;
       }
       valid.push(d);
     });
-    if (sec) sec.style.display = valid.length > 0 ? "flex" : "none";
-    valid.forEach(function (d) {
-      renderChatItem(
-        div,
-        d.peerUID,
-        d.peerName,
-        d.peerPhoto || "",
-        true,
-        d.chatID,
-        "private",
-      );
+    if(sec)sec.style.display=valid.length>0?"flex":"none";
+    valid.forEach(function(d){
+      renderChatItem(div,d.peerUID,d.peerName,d.peerPhoto||"",true,d.chatID,"private");
     });
   }
-  _recentChatsUnsub = db
-    .collection("recentChats")
-    .where("ownerUID", "==", currentUser.uid)
-    .where("isTemporary", "==", true)
-    .orderBy("updatedAt", "desc")
-    .onSnapshot(render, function () {
-      if (_recentChatsUnsub) {
-        _recentChatsUnsub();
-        _recentChatsUnsub = null;
-      }
-      _recentChatsUnsub = db
-        .collection("recentChats")
-        .where("ownerUID", "==", currentUser.uid)
-        .where("isTemporary", "==", true)
+  _recentChatsUnsub=db.collection("recentChats")
+    .where("ownerUID","==",currentUser.uid)
+    .where("isTemporary","==",true)
+    .orderBy("updatedAt","desc")
+    .onSnapshot(render,function(){
+      if(_recentChatsUnsub){_recentChatsUnsub();_recentChatsUnsub=null;}
+      _recentChatsUnsub=db.collection("recentChats")
+        .where("ownerUID","==",currentUser.uid)
+        .where("isTemporary","==",true)
         .onSnapshot(render);
     });
 }
@@ -1541,7 +1501,7 @@ function loadConversation(type) {
           messagesDiv.appendChild(row);
 
           if (!isMine && type === "private") {
-            autoSaveIncomingUser(data.senderUID, data.sender, data.photoBase64);
+            autoSaveIncomingUser(data.senderUID,data.sender,data.photoBase64);
             var seenBy = data.seenBy || {};
             if (!seenBy[currentUser.uid]) {
               var msgDocRef = db
@@ -1693,13 +1653,13 @@ function showReactPicker(docId, type) {
     btn.onmouseout = function () {
       this.style.transform = "scale(1)";
     };
-    btn.onclick = function (e) {
+    btn.onclick = function(e) {
       e.stopPropagation();
       e.preventDefault();
       toggleReaction(docId, type, emoji);
       picker.remove();
     };
-    btn.ontouchend = function (e) {
+    btn.ontouchend = function(e) {
       e.stopPropagation();
       e.preventDefault();
       toggleReaction(docId, type, emoji);
@@ -2268,34 +2228,26 @@ function showMsgMenu(e, docId, type, isMine) {
   items.push({
     icon: "fa-reply",
     label: "Reply",
-    fn: function () {
-      replyToMsg(docId, type);
-    },
+    fn: "replyToMsg('" + docId + "','" + type + "')",
   });
   if (isMine === true || isMine === "true") {
     items.push({
       icon: "fa-trash",
       label: "Delete for me",
-      fn: function () {
-        deleteMsg(docId, type, "me");
-      },
+      fn: "deleteMsg('" + docId + "','" + type + "','me')",
       color: "#ff4d6d",
     });
     items.push({
       icon: "fa-trash-alt",
       label: "Delete for everyone",
-      fn: function () {
-        confirmDeleteForAll(docId, type);
-      },
+      fn: "confirmDeleteForAll('" + docId + "','" + type + "')",
       color: "#ff4d6d",
     });
   } else {
     items.push({
       icon: "fa-trash",
       label: "Delete for me",
-      fn: function () {
-        deleteMsg(docId, type, "me");
-      },
+      fn: "deleteMsg('" + docId + "','" + type + "','me')",
       color: "#ff4d6d",
     });
   }
@@ -2320,7 +2272,7 @@ function showMsgMenu(e, docId, type, isMine) {
     };
     el.onclick = function () {
       hideMsgMenu();
-      item.fn();
+      eval(item.fn);
     };
     menu.appendChild(el);
   });
@@ -2636,18 +2588,22 @@ document.addEventListener("click", function (e) {
 var _heartbeatInterval = null;
 function startHeartbeat() {
   stopHeartbeat();
-  db.collection("presence").doc(currentUser.uid).set({
-    online: true,
-    lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-    heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
-  });
+  db.collection("presence")
+    .doc(currentUser.uid)
+    .set({
+      online: true,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
+    });
   _heartbeatInterval = setInterval(function () {
     if (currentUser && document.visibilityState !== "hidden")
-      db.collection("presence").doc(currentUser.uid).set({
-        online: true,
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-        heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+      db.collection("presence")
+        .doc(currentUser.uid)
+        .set({
+          online: true,
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+          heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
+        });
   }, 30000);
 }
 function stopHeartbeat() {
@@ -2658,11 +2614,13 @@ function stopHeartbeat() {
 }
 function setPresenceOff() {
   if (!currentUser) return;
-  db.collection("presence").doc(currentUser.uid).set({
-    online: false,
-    lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-    heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
-  });
+  db.collection("presence")
+    .doc(currentUser.uid)
+    .set({
+      online: false,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      heartbeat: firebase.firestore.FieldValue.serverTimestamp(),
+    });
 }
 window.addEventListener("beforeunload", function () {
   stopHeartbeat();
@@ -2850,6 +2808,7 @@ document.addEventListener("click", function (e) {
   }
 });
 
+
 // ═══ GLOBAL TOOLBAR ═══
 var _tbDocId = null;
 var _activeToolbar = null;
@@ -2863,58 +2822,33 @@ function showToolbar(docId, type, bubbleEl) {
 
   while (tb.firstChild) tb.removeChild(tb.firstChild);
   [
-    {
-      icon: "fa-smile",
-      fn: function () {
-        showReactPicker(docId, type);
-      },
-    },
-    {
-      icon: "fa-reply",
-      fn: function () {
-        replyToMsg(docId);
-      },
-    },
-    {
-      icon: "fa-language",
-      fn: function () {
-        var b = document.getElementById("bubble_" + docId);
-        var t = b ? b.querySelector(".msg-text") : null;
-        translateMessage(docId, t ? t.textContent.trim() : "");
-      },
-    },
-    {
-      icon: "fa-ellipsis-v",
-      fn: function (ev) {
-        showMsgMenu(ev, docId, type, isMine);
-      },
-    },
-  ].forEach(function (b) {
-    var btn = document.createElement("button");
-    btn.className = "gtb-btn";
-    btn.innerHTML = "<i class='fas " + b.icon + "'></i>";
-    btn.addEventListener("click", function (ev) {
-      ev.stopPropagation();
-      b.fn(ev);
-    });
+    { icon:"fa-smile",      fn:function(){showReactPicker(docId,type);} },
+    { icon:"fa-reply",      fn:function(){replyToMsg(docId);} },
+    { icon:"fa-language",   fn:function(){
+        var b=document.getElementById("bubble_"+docId);
+        var t=b?b.querySelector(".msg-text"):null;
+        translateMessage(docId,t?t.textContent.trim():"");
+    }},
+    { icon:"fa-ellipsis-v", fn:function(ev){showMsgMenu(ev,docId,type,isMine);} }
+  ].forEach(function(b){
+    var btn=document.createElement("button");
+    btn.className="gtb-btn";
+    btn.innerHTML="<i class='fas "+b.icon+"'></i>";
+    btn.addEventListener("click",function(ev){ev.stopPropagation();b.fn(ev);});
     tb.appendChild(btn);
   });
 
   var rect = bubbleEl.getBoundingClientRect();
-  var top = rect.top - 50;
+  var top  = rect.top - 50;
   if (top < 58) top = rect.bottom + 6;
-  var left = window.innerWidth / 2 - 90;
+  var left = (window.innerWidth / 2) - 90;
   if (window.innerWidth > 768) {
     var mid = rect.left + rect.width / 2;
     left = Math.max(8, Math.min(mid - 90, window.innerWidth - 188));
   }
   tb.style.cssText =
     "display:flex;position:fixed;bottom:auto;" +
-    "left:" +
-    left +
-    "px;top:" +
-    top +
-    "px;" +
+    "left:"+left+"px;top:"+top+"px;" +
     "z-index:9999;background:#0d1526;" +
     "border:1px solid rgba(0,245,255,0.4);" +
     "border-radius:24px;padding:5px 10px;" +
@@ -2923,87 +2857,61 @@ function showToolbar(docId, type, bubbleEl) {
   _activeToolbar = tb;
 }
 
-function hideToolbar() {
-  var tb = document.getElementById("globalToolbar");
-  if (tb) tb.style.display = "none";
-  _tbDocId = null;
-  _activeToolbar = null;
+function hideToolbar(){
+  var tb=document.getElementById("globalToolbar");
+  if(tb)tb.style.display="none";
+  _tbDocId=null;_activeToolbar=null;
 }
 
 // Desktop: hover show, mouseleave hide
-document.addEventListener("mouseover", function (e) {
-  var tb = document.getElementById("globalToolbar");
-  if (tb && tb.contains(e.target)) return;
-  var bubble = e.target.closest(".msg-bubble");
-  if (!bubble) return;
-  var docId = (bubble.id || "").replace("bubble_", "");
-  if (!docId) return;
-  var row = document.getElementById("msgrow_" + docId);
-  if (!row) return;
-  showToolbar(docId, row.getAttribute("data-type") || "private", bubble);
+document.addEventListener("mouseover",function(e){
+  var tb=document.getElementById("globalToolbar");
+  if(tb&&tb.contains(e.target))return;
+  var bubble=e.target.closest(".msg-bubble");
+  if(!bubble)return;
+  var docId=(bubble.id||"").replace("bubble_","");
+  if(!docId)return;
+  var row=document.getElementById("msgrow_"+docId);
+  if(!row)return;
+  showToolbar(docId,row.getAttribute("data-type")||"private",bubble);
 });
-document.addEventListener("mouseout", function (e) {
-  var tb = document.getElementById("globalToolbar");
-  if (!tb) return;
-  var to = e.relatedTarget;
-  if (to && tb.contains(to)) return;
-  if (to && to.closest && to.closest(".msg-bubble")) return;
-  if (e.target.closest && e.target.closest(".msg-bubble")) hideToolbar();
+document.addEventListener("mouseout",function(e){
+  var tb=document.getElementById("globalToolbar");
+  if(!tb)return;
+  var to=e.relatedTarget;
+  if(to&&tb.contains(to))return;
+  if(to&&to.closest&&to.closest(".msg-bubble"))return;
+  if(e.target.closest&&e.target.closest(".msg-bubble"))hideToolbar();
 });
 
 // Mobile: single tap on bubble shows toolbar
 // tap outside hides it
-document.addEventListener(
-  "touchend",
-  function (e) {
-    var tb = document.getElementById("globalToolbar");
-    // Tap on toolbar button — let it work, don't hide
-    if (tb && tb.contains(e.target)) return;
-    // Tap on bubble — show toolbar
-    var bubble = e.target.closest(".msg-bubble");
-    if (bubble) {
-      var docId = (bubble.id || "").replace("bubble_", "");
-      if (!docId) return;
-      var row = document.getElementById("msgrow_" + docId);
-      if (!row) return;
-      // Already showing for this bubble — hide it
-      if (_tbDocId === docId && tb && tb.style.display === "flex") {
-        hideToolbar();
-        return;
-      }
-      e.preventDefault();
-      showToolbar(docId, row.getAttribute("data-type") || "private", bubble);
-      return;
+document.addEventListener("touchend",function(e){
+  var tb=document.getElementById("globalToolbar");
+  // Tap on toolbar button — let it work, don't hide
+  if(tb&&tb.contains(e.target))return;
+  // Tap on bubble — show toolbar
+  var bubble=e.target.closest(".msg-bubble");
+  if(bubble){
+    var docId=(bubble.id||"").replace("bubble_","");
+    if(!docId)return;
+    var row=document.getElementById("msgrow_"+docId);
+    if(!row)return;
+    // Already showing for this bubble — hide it
+    if(_tbDocId===docId&&tb&&tb.style.display==="flex"){
+      hideToolbar();return;
     }
-    // Tap anywhere else — hide
-    hideToolbar();
-  },
-  { passive: false },
-);
-
-// ═══ OFFLINE BANNER ═══
-window.addEventListener("offline", function () {
-  var b = document.getElementById("offlineBanner");
-  if (!b) {
-    b = document.createElement("div");
-    b.id = "offlineBanner";
-    b.style.cssText =
-      "position:fixed;top:58px;left:0;right:0;z-index:8000;" +
-      "background:#f59e0b;color:#000;text-align:center;" +
-      "padding:8px;font-size:13px;font-weight:600;";
-    b.textContent = "⚠️ You are offline. Messages will send when connected.";
-    document.body.appendChild(b);
+    e.preventDefault();
+    showToolbar(docId,row.getAttribute("data-type")||"private",bubble);
+    return;
   }
-  b.style.display = "block";
-});
-window.addEventListener("online", function () {
-  var b = document.getElementById("offlineBanner");
-  if (b) b.style.display = "none";
-  if (currentUser) startHeartbeat();
-});
+  // Tap anywhere else — hide
+  hideToolbar();
+},{passive:false});
+
 function logout() {
   setPresence(false);
   auth.signOut().then(function () {
-    window.location.href = "index.html";
+    window.location.href = "login.html";
   });
 }
